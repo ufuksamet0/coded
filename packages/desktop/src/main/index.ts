@@ -60,6 +60,8 @@ function createWindow(): BrowserWindow {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
       contextIsolation: true,
+      nodeIntegration: false,
+      webviewTag: false,
       webSecurity: true,
     },
   });
@@ -91,9 +93,17 @@ function createWindow(): BrowserWindow {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 
+  mainWindow.webContents.session.setPermissionRequestHandler((_wc, _perm, cb) => cb(false));
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({ responseHeaders: { ...details.responseHeaders, 'Content-Security-Policy': ["default-src 'self'"] } });
+  });
+  mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
+    const ok = navigationUrl.startsWith('file://');
+    if (!ok) event.preventDefault();
+  });
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
-    return { action: 'deny' };
+    try { if (new URL(url).protocol === 'https:') void shell.openExternal(url); } catch {}
+    return { action: 'deny' } as const;
   });
 
   return mainWindow;
@@ -176,8 +186,7 @@ ipcMain.handle('agent:create', async (_event, options: CreateAgentOptions) => {
 
 ipcMain.handle('agent:run', async (_event, agentId: number, input: string) => {
   const handle = agents.get(agentId);
-  if (!handle) throw new Error(`Agent ${agentId} not found`);
-  return handle.run(input);
+  return handle?.run(input);
 });
 
 ipcMain.on('agent:abort', (_event, agentId: number) => {
@@ -234,6 +243,7 @@ ipcMain.handle('shell:execute', async (_event, workspace: string, command: strin
     let stdout = '';
     let stderr = '';
     proc.stdout.on('data', (d) => (stdout += d.toString()));
+    proc.stderr.on('data', (d) => (stdout += d.toString()));
     proc.stderr.on('data', (d) => (stderr += d.toString()));
     proc.on('close', (code) => resolve({ code: code ?? 0, stdout, stderr }));
   });
