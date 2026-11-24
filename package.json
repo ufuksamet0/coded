@@ -13,7 +13,7 @@
     "build": "pnpm -r build",
     "dev": "pnpm --filter @coded/cli dev",
     "dev:desktop": "pnpm --filter @coded/desktop dev",
-    "typecheck": "pnpm -r typecheck",
+    "typecheck": "pnpm --filter @coded/core typecheck && pnpm --filter @coded/cli typecheck && pnpm --filter @coded/desktop typecheck",
     "test": "pnpm --filter @coded/core test",
     "lint": "pnpm -r lint",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",

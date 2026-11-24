@@ -11,6 +11,7 @@ export * from './agent/prompt.js';
 export * from './agent/session.js';
 export * from './tools/index.js';
 export * from './tools/fs.js';
+export * from './tools/diff-apply.js';
 export * from './tools/shell.js';
 
 export * from './utils/paths.js';
