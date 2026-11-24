@@ -17,6 +17,7 @@
     "test": "pnpm --filter @coded/core test",
     "lint": "pnpm -r lint",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
     "cli": "pnpm --filter @coded/cli start"
   },
   "devDependencies": {
