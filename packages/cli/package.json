@@ -1,0 +1,28 @@
+{
+  "name": "@coded/cli",
+  "version": "0.1.0",
+  "description": "Coded — an AI coding agent in your terminal.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "coded": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@coded/core": "workspace:*",
+    "fast-glob": "^3.3.2",
+    "ink": "^8.0.0",
+    "react": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.0"
+  }
+}

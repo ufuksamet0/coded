@@ -1,0 +1,67 @@
+{
+  "name": "@coded/core",
+  "version": "0.1.0",
+  "description": "Model-agnostic agent runtime for Coded.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./utils/paths.js": {
+      "types": "./dist/utils/paths.d.ts",
+      "import": "./dist/utils/paths.js"
+    },
+    "./utils/text.js": {
+      "types": "./dist/utils/text.d.ts",
+      "import": "./dist/utils/text.js"
+    },
+    "./utils/diff.js": {
+      "types": "./dist/utils/diff.d.ts",
+      "import": "./dist/utils/diff.js"
+    },
+    "./agent/session.js": {
+      "types": "./dist/agent/session.d.ts",
+      "import": "./dist/agent/session.js"
+    },
+    "./agent/prompt.js": {
+      "types": "./dist/agent/prompt.d.ts",
+      "import": "./dist/agent/prompt.js"
+    },
+    "./tools/index.js": {
+      "types": "./dist/tools/index.d.ts",
+      "import": "./dist/tools/index.js"
+    },
+    "./tools/fs.js": {
+      "types": "./dist/tools/fs.d.ts",
+      "import": "./dist/tools/fs.js"
+    },
+    "./tools/shell.js": {
+      "types": "./dist/tools/shell.d.ts",
+      "import": "./dist/tools/shell.js"
+    },
+    "./desktop/desktop-agent.js": {
+      "types": "./dist/desktop/desktop-agent.d.ts",
+      "import": "./dist/desktop/desktop-agent.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.2",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.8"
+  }
+}
