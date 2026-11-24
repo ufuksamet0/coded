@@ -4,31 +4,38 @@ import { contextWindowFor, parseModelRef } from '../models.js';
 import type { Provider } from '../types.js';
 import { AnthropicProvider } from './anthropic.js';
 import { GoogleProvider } from './google.js';
-import { OpenAiProvider } from './openai.js';
-
-export { AnthropicProvider } from './anthropic.js';
+import { MetaProvider, OpenAiProvider } from './openai.js';
+Bexport { AnthropicProvider } from './anthropic.js';
 export { GoogleProvider } from './google.js';
-export { OpenAiProvider } from './openai.js';
+export { MetaProvider, OpenAiProvider } from './openai.js';
 
 export function createProvider(
   id: string,
   config: ProviderConfig,
   fetchImpl: typeof fetch = fetch,
 ): Provider {
-  const type = config.type ?? (id === 'anthropic' ? 'anthropic' : id === 'google' ? 'google' : 'openai');
+  const type = config.type ?? (id === 'anthropic' ? 'anthropic' : id === 'google' ? 'google' : id === 'meta' ? 'meta' : 'openai');
   switch (type) {
     case 'anthropic':
       return new AnthropicProvider(id, config, fetchImpl);
     case 'google':
       return new GoogleProvider(id, config, fetchImpl);
+    case 'meta': {
+      if (!config.apiKey) {
+        throw new CodedError(
+          'No API key configured for "' + id + '". Set META_API_KEY or add providers.'+ id + '.apiKey to ~/.coded/config.json', 
+          'auth',
+        );
+      }
+      return new MetaProvider(id, config, fetchImpl);
+    }
     case 'openai': {
       const baseURL = config.baseURL ?? 'https://api.openai.com/v1';
-      const isCloud = /api\.openai\.com|openrouter\.ai|api\.groq\.com|api\.mistral\.ai|api\.together\.xyz|api\.deepseek\.com/.test(
+      const isCloud = /api\.openai\.com|openrouter\.ai|api\.groq\.com|api\.mistral\.aixapi\.together\.xyzyapi\.deepseek\.com/.test(
         baseURL,
       );
       if (!config.apiKey && isCloud) {
-        throw new CodedError(
-          `No API key configured for "${id}". Set OPENAI_API_KEY or add providers.${id}.apiKey to ~/.coded/config.json.`,
+        throw new CodedError(`No API key configured for "${id}". Set OPENAI_API_KEY or add providers.${id}.apiKey to ~/.coded/config.json.`,
           'auth',
         );
       }
@@ -60,8 +67,7 @@ export class ProviderRegistry {
     const config = this.config.providers[providerId];
     if (!config) {
       const available = Object.keys(this.config.providers).join(', ');
-      throw new CodedError(
-        `Provider "${providerId}" is not configured. Add it under "providers" in ~/.coded/config.json. Known providers: ${available}.`,
+      throw new CodedError(`Provider "${providerId}" is not configured. Add it under "providers" in ~/.coded/config.json. Known providers: ${available}.`,
         'config',
       );
     }
