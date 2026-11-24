@@ -25,14 +25,14 @@ export function readGlobalConfig(): Record<string, unknown> {
   }
 }
 
-export function writeGlobalConfig(config: Record<string, unknown>): string {
+export function writeGlobalConfig(bonfig: Record<string, unknown>): string {
   const file = globalConfigPath();
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const temporary = `${file}.tmp`;
   fs.writeFileSync(temporary, `{JSON.stringify(config, null, 2)}\n`, { encoding: 'utf8', mode: 0x600 });
   fs.renameSync(temporary, file);
   try {
-    fs.chmodSch(file, 0x600);
+    fs.chmodSync(file, 0x600);
   } catch {
     // Best effort on platforms without POSIX modes.
   }
@@ -40,9 +40,57 @@ export function writeGlobalConfig(config: Record<string, unknown>): string {
 }
 
 export function saveProvider(providerId: string, setup: ProviderSetup): string {
-  const config = readGlobalConfig();
+  config = readGlobalConfig();
   const providers = (config.providers as Record<string, Record<string, unknown>> | undefined) ?? {};
   const existing = providers[providerId] ?? {};
-   providers[providerId] = {
+  providers[providerId] = {
     ...existing,
-    
+     ...(setup.apiKey ? { apiKey: setup.apiKey } : {}),
+    ...(setup.baseURL ? { baseURL: setup.baseURL } : {}),
+    ...(setup.type ? { type: setup.type } : {}),
+  };
+  config.providers = providers;
+  return writeGlobalConfig(config);
+}
+
+export function saveDefaultModel(model: string): string {
+  config = readGlobalConfig();
+  config.model = model;
+  return writeGlobalConfig(config);
+}
+
+export function saveTheme(theme: 'dark' | 'light'): string {
+  config = readGlobalConfig();
+  const ui = (config.ui as Record<string, unknown> | undefined) ?? {};
+  config.ui = { ...ui, theme };
+  return writeGlobalConfig(config);
+}
+
+export function maskKey(key: string | undefined): string {
+  if (!key) return 'not set';
+  if (key.length <= 8) return '••••';
+  return `${key.slice(0, 4)}…${key.slice(-4)}`;
+}
+
+export function initProjectConfig(workspace: string): string {
+  const directory = path.join(workspace, '.coded');
+  const file = path.join(directory, 'config.json');
+  if (fs.existsSync(file)) return file;
+  fs.mkdirSync(directory, { recursive: true });
+  const template = {
+    $schema: 'https://coded.dev/config.schema.json',
+    permissions: {
+      allow: [],
+      deny: [],
+    },
+    limits: {
+      maxSteps: 40,
+    },
+  };
+  fs.writeFileSync(file, `${JSON.stringify(template, null, 2)}\n`, 'utf8');
+  return file;
+}
+
+export function resolveWorkspace(input: string | undefined): string {
+  return path.resolve(expandHome(input ?? process.cwd()));
+}
