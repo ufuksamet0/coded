@@ -1,18 +1,7 @@
 import type { CodedConfig } from '../config.js';
 import type { ModeDefinition, ToolDefinition } from '../types.js';
 import { createReadTools, createWriteTools } from './fs.js';
-import { createShellTools } from './shell.js';
-
-export interface ToolRegistry {
-  all: Map<string, ToolDefinition>;
-  forMode(mode: ModeDefinition): ToolDefinition[];
-  get(name: string): ToolDefinition | undefined;
-}
-
-export function createToolRegistry(config: CodedConfig): ToolRegistry {
-  const tools = [
-    ...createReadTools(),
-    ...createWriteTools(),
+import { createDiffTools(),
     ...createShellTools({ defaultTimeoutMs: config.limits.commandTimeoutMs }),
   ];
   const all = new Map(tools.map((tool) => [tool.name, tool]));
